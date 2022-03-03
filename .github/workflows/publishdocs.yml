@@ -3,7 +3,7 @@ name: Documentation Creation and Publishing
 on:
   # Code pushed to Dev branch will be a trigger
   push:
-    branches: [ Dev ]      
+    branches: [ main ]      
   # Code pulled from Dev branch will be a trigger
   pull_request:
     branches: [ Dev ]
