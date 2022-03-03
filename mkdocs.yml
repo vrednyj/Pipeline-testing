@@ -1,5 +1,4 @@
 site_name: Wicked Adventures
 site_url: https://vrednyj.github.io/Pipeline-testing/Wicked-Adventure.html
 repo_name: GitHub
-edit_uri: /_build/html
 docs_dir: doc/_build/html
