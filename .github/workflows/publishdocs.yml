@@ -51,4 +51,5 @@ jobs:
       run: |
         pip install mkdocs
         git config user.name 'github-actions[bot]' && git config user.email 'github-actions[bot]@users.noreply.github.com'
-        mkdocs gh-deploy --config-file mkdocs.yml --force
+        mkdocs gh-deploy --force
+#        mkdocs gh-deploy --config-file mkdocs.yml --force
