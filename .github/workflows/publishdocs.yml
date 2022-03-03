@@ -47,6 +47,11 @@ jobs:
       run: |
         cd doc && source ../venv/bin/activate && python ../venv/bin/sphinx-apidoc -f -d 8 -o . .. && make html && cd ..
    
+    - name: Where are we?
+      run: |
+        ls
+        tree
+   
     - name: Publishing documents to gh-pages branch
       run: |
         pip install mkdocs
