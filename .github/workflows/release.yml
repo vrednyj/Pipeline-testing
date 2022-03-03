@@ -1,0 +1,71 @@
+# This work flow is to release a package on Git Hub.
+# It packs ONLY the required files and folders to wicked-adventure.tar.gz archive
+# and release it on Git Hub with version control.
+# It will work only when something is pushed to Dev branch with commit message "[Release]"
+# or "[Release-test]"
+# If "[Release-test]" message is used during the commit, there will no be a releas, just a draft release. 
+# Note: This is a not final version of workflow and can be changed at any time, depending on our needs.
+# This can be run as part of other workflows or as a standalone work flow. Do not forget to change 
+# the push or pull-request conditions: branch, commit message etc.
+
+name: Release Wicked-Adventure
+on: [push, pull_request]
+jobs:
+  release:
+    # Nothing supper-drupper complicated is needed here.
+    # run on ubuntu ONLY. Do not use other os as it will not work
+    # and is not needed to work.
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    # Runs when the commit message contains "[Release] or [Release-test] "
+    if: | 
+      contains(github.event.head_commit.message, '[Release]') || contains(github.event.head_commit.message, '[Release-test]')      
+    steps:
+      - uses: actions/checkout@v2
+          
+      # Condition to only run this whenever the runner os is Ubuntu
+      # This part of code can be re-used for other os if needed.
+      - name: Build Release Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir -p wicked-adventure
+          mkdir -p release
+          cp -R book config media members db.sqlite3 manage.py launch_wicket_adventures.sh requirements.txt wicked-adventure
+          tar -zcvf ./release/wicked-adventure.tar.gz wicked-adventure   
+      
+      # This will draft a new release or release it & will attach the binaries/archives produced by the above outputs.
+      
+      - name: Release check
+        env:
+          COMMIT_VAR: ${{ contains(github.event.head_commit.message,'[Release]') }}
+        run: |
+          if ${COMMIT_VAR} == true; then
+            echo "flag=false" >> $GITHUB_ENV
+            echo "rel_type=Release" >> $GITHUB_ENV
+            echo "Release to Production"
+            
+          else
+            echo "flag=true" >> $GITHUB_ENV
+            echo "rel_type=Pre-Release" >> $GITHUB_ENV
+            echo "Pre-Release to Dev Enviroment"
+          
+          fi  
+      # Depending on (draft: true/false) it will do the release or not.
+      # When "[Relese]" is used as a message with commit ${{env.flag}} = false. See above.
+      # As an automated version control of the release archive  build number is used.
+      # ${{ github.run_number }} is an enviromental virable and that alwasy increses with every build.
+      # Version control for now is v0.1.build_nuber
+      - name: ${{env.rel_type}}
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v0.1.${{ github.run_number }}
+          name: ${{env.rel_type}}
+          draft: ${{env.flag}}
+          #draft: true/false
+          files: |
+            ./release/*.tar.gz
+                       
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.

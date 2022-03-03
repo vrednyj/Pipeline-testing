@@ -1,0 +1,55 @@
+name: "Docker"
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ Dev ]
+ 
+
+jobs:
+  stackhawk-hawkscan:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code 
+      uses: actions/checkout@v2
+    
+    - name: Updating system
+      run: |
+        sudo apt-get update
+        sudo apt-get install \
+           ca-certificates \
+           curl \
+           gnupg \
+           lsb-release
+    - name: Adding Official GPG key
+      run: |
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    
+    - name: Not sure what is going on here
+      run: |
+        echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+        $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    
+    - name: Updating
+      run: |
+        sudo sudo apt-get update
+        sudo apt-get install docker-ce docker-ce-cli containerd.io     
+    
+    
+    - name: Building App
+      run: |
+        sudo docker build . -f Dockerfile -t djangoapp
+ 
+    - name: Running App
+      run: |
+        sudo docker run -d -p 8000:8000 djangoapp
+
+        # docker run -it –-name Django_project –-rm -p 800:8000 Django-app:latest 
+    
+    - uses: stackhawk/hawkscan-action@v1.3.2
+      with:
+        apiKey: ${{ secrets.HAWK_API_KEY }}
+        codeScanningAlerts: false
+        githubToken: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,94 @@
+name: Django CI/CD.
+
+# Workflow triggers
+on:
+  # Code pushed to Dev branch will be a trigger
+  push:
+    branches: [ Dev ]      
+  # Code pulled from Dev branch will be a trigger
+  pull_request:
+    branches: [ Dev ]
+
+# build-job, package-job.
+jobs:
+  build-job:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.9]
+
+    steps:
+    - name: Checkout code # checking our the code at current commit that triggers the workflow
+      uses: actions/checkout@v2
+
+    - name: Cache dependency # caching dependency will make our build faster.
+      uses: actions/cache@v2 # for more info checkout pip section documentation at https://github.com/actions/cache
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Check Syntax # check code formatting with flake8
+      run: | 
+        pip install flake8
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Setting up a Virtual Enviroment
+      run: |
+        python -m venv venv && source venv/bin/activate &&  pip install -r requirements.txt   
+
+    - name: Exporting secret key
+      run: |
+        echo "SECRET_KEY = 'django-insecure-_^39%)wfp910i*)2!2+ihrxbnrv$&44nm#pv-yf!7&mqhbgnkz'" > .env
+
+    - name: Run Migrations # run migrations to create table in side db container
+      run: |
+          source venv/bin/activate && python3.9 manage.py migrate
+
+    - name: Test on the app
+      run: |
+        source venv/bin/activate && python3.9 manage.py test
+        # source venv/bin/activate && python3.9 manage.py runserver 0.0.0.0:8000
+
+#  package-job: # package job in order to build and publish docker images
+#    runs-on: ubuntu-latest
+#    needs: [build-job] # It will start once build-job has passed
+#    if: ${{ github.event_name == 'push' }} # in a puh event it will be triggered.
+# Needs to be edited with steps for building and publishing the docker image
+
+
+#  deploy-job: # deploy-job when deploying our code to AWS.
+#    runs-on: ubuntu-latest
+#    needs: [package-job] # will require package-job to be successful for triggering
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
