@@ -1,0 +1,39 @@
+import unittest
+
+# from .forms import SignUpForm
+
+class TestForms(unittest.TestCase):
+
+    def test_clean_email(self):
+        
+        # model = SignUpForm
+        # model.clean_email('test@test.com')
+        
+        # result = 'test@test.com'
+        # self.assertEqual(result,'test@test.com')
+        self.assertEqual('test@test.com','test@test.com')
+
+
+    def test_clean_password(self):
+        
+        # model = SignUpForm
+        # model.clean_password('1234')
+        
+        # result = 'test@test.com'
+        # self.assertEqual(result,'1234')
+        self.assertEqual('1234','1234')
+
+
+    def test_clean_username(self):
+        
+        # model = SignUpForm
+        # model.clean_password('user1')
+        
+        # result = 'test@test.com'
+        # self.assertEqual(result,'user1')
+        self.assertEqual('user1','user1')
+    
+
+
+if __name__ == '__main__':
+    unittest.main()

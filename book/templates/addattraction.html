@@ -1,0 +1,23 @@
+{% extends 'base-extended.html' %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+  <div class="form-group">
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{form.media}}
+    {{form.as_p}}
+    <button type="submit" class="btn btn-primary right">Add Attraction</button>
+  </form>
+  </div>
+  
+  <script>
+    var name = "{{user.location.id}}";
+    document.getElementById("id").value = name;
+  </script>
+{% else %}
+You are not allowed...
+{% endif %}
+
+{% endblock content %}

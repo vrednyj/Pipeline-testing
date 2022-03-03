@@ -1,0 +1,38 @@
+{% extends 'base-extended.html' %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+{% if user.profile.id %}
+  <div class="form-group">
+  <form method="POST">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button type="submit" class="btn btn-success">Book</button>
+  </form>
+  </div>
+
+  <script>
+    var name = "{{user.id}}";
+    document.getElementById("id").value = name;
+  </script>
+{% else %}
+<br>
+<br>
+<br>
+Please edit your profile with the required information.
+<br>
+<br>
+<br>
+{% endif %}
+{% else %}
+<br>
+<br>
+<br>
+Please login to your account to proceed with the booking.
+<br>
+<br>
+<br>
+{% endif %}
+
+{% endblock content %}

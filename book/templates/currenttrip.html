@@ -1,0 +1,48 @@
+{% extends 'base-extended.html' %}
+{% block content %}
+
+
+<div id="carouselExampleCaptions {% if request.path != '/' %} style="display: none;" {% endif %}" class="carousel slide" data-bs-ride="carousel">
+  <div class="carousel-indicators">
+    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
+    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
+  </div>
+  <div class="carousel-inner" >
+    <div class="carousel-item active">
+	    <img src="{{attraction.image.url}}" class="d-block w-100" alt="..." style="height: 600px;">
+      <div class="carousel-caption d-none d-md-block">
+	      <h5>{{attraction.title}}</h5>
+      </div>
+    </div>
+    </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+
+<br>
+
+ <div class="card align-self:center">
+  <div class="card-body">
+    <h5 class="card-title">{{attraction.title}}</h5>
+    <p class="card-text">{{attraction.body}}</p>
+  </div>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item">Location: {{attraction.location}}</li>
+    <li class="list-group-item"> Price: € {{attraction.price}}</li>
+    <li class="list-group-item">Max Weight: {{attraction.max_weight}}</li>
+    <li class="list-group-item">Min Height {{attraction.min_height}}</li>
+  </ul>
+  <div class="card-body">
+    <a href="{% url 'book' attraction.id %}" class="btn btn-primary">Book</a>
+  </div>
+    </div>
+</div>
+
+{% endblock content %}

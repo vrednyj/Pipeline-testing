@@ -1,0 +1,32 @@
+{% extends 'base-extended.html' %}
+{% block content %}
+
+<style>
+body {
+  background-image: url("/media/images/Cor_1461968714244444290.jpg");
+  background-size: 100% 100%;
+}
+</style>
+
+<br>
+    <div class="form-group" style="padding-top: 60px;" style="padding-right: 200px:">
+    <form method="POST">
+        {% csrf_token %}
+            <div class="col-sm-2">
+              <input type="text" class="form-control" name="username" placeholder="Username">
+            </div>
+			<br>
+            <div class="col-sm-2">
+              <input type="password" class="form-control" name="password" placeholder="Password">
+            </div>
+			<br>
+			<br>			
+        <button class="btn btn-primary">Login</button>
+		<br>
+		<br>
+		<br>
+    </div>
+    <br>
+    <br>
+    <br>
+{% endblock %}

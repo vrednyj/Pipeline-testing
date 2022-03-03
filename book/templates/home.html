@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% for attraction in filter.qs %}
+<div style="display: inline-block; padding-top: 20px; padding-left: 50px;">
+    <a href="{% url 'item' attraction.pk %}">
+    <figure class="figure">
+        <img src="{{attraction.image.url}}" class="figure-img img-fluid rounded" style="width: 550px; height: 480px;">
+        <figcaption class="figure-caption" style="font-weight: bold; font-size: 17px;">{{attraction.title}} - Price {{attraction.price}} € - Park: {{attraction.location}} </figcaption>
+
+    </figure>
+    </a>
+</div>
+{% endfor %}
+
+{% endblock content %}

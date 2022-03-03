@@ -1,0 +1,10 @@
+# -- stackhawk configuration for  awpgdip2022  --
+app:
+  # -- An applicationId obtained from the StackHawk platform. --
+  applicationId: 17cb7827-cbcc-4786-a403-ff829cd6eb75 # (required)
+  # -- The environment for the applicationId defined in the StackHawk platform. --
+  env: Development # (required)
+  # -- The url of your application to scan --
+  host: http://0.0.0.0:8000/ # (required)
+hawk:
+  failureThreshold: low

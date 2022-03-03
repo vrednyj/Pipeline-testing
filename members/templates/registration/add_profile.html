@@ -1,0 +1,20 @@
+{% extends 'base-extended.html' %}
+{% block content %}
+
+{% if user.is_authenticated %}
+
+    <div class="form-group">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-primary">Create</button>
+    </div>
+
+    <script>
+        var name = "{{user.id}}";
+        document.getElementById("id").value = name;
+    </script>
+{% else %}
+    You are not allowed...
+{% endif %}
+{% endblock %}

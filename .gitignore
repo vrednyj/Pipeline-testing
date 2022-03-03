@@ -1,0 +1,10 @@
+.env
+venv/
+.vs
+book/__pycache__
+config/__pycache__
+members/__pycache__
+
+
+#warning: unable to access 'venv/': Permission denied fatal: cannot use venv/ as an exclude file --- to solve this problem
+#git config --global core.excludesfile ~/.gitignore
