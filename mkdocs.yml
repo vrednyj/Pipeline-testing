@@ -2,4 +2,4 @@ site_name: Wicked Adventures
 site_url: https://github.com/vrednyj/Pipeline-testing/
 repo_name: GitHub
 edit_uri: https://github.com/vrednyj/Pipeline-testing/gh-pages/
-docs_dir: /_build/html/
+docs_dir: doc/_build/html/
