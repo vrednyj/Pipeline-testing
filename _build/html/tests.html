@@ -1,0 +1,421 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>tests package &#8212; Wicked-Adventure 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="tests-package">
+<h1>tests package<a class="headerlink" href="#tests-package" title="Permalink to this headline">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-tests.tests_images">
+<span id="tests-tests-images-module"></span><h2>tests.tests_images module<a class="headerlink" href="#module-tests.tests_images" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.tests_images.ContentFileTestCase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.tests_images.</span></span><span class="sig-name descname"><span class="pre">ContentFileTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#ContentFileTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.ContentFileTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.ContentFileTestCase.test_content_file_custom_name">
+<span class="sig-name descname"><span class="pre">test_content_file_custom_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#ContentFileTestCase.test_content_file_custom_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.ContentFileTestCase.test_content_file_custom_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The constructor of ContentFile accepts ‘name’ (#16590).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.ContentFileTestCase.test_content_file_default_name">
+<span class="sig-name descname"><span class="pre">test_content_file_default_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#ContentFileTestCase.test_content_file_default_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.ContentFileTestCase.test_content_file_default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.ContentFileTestCase.test_content_file_input_type">
+<span class="sig-name descname"><span class="pre">test_content_file_input_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#ContentFileTestCase.test_content_file_input_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.ContentFileTestCase.test_content_file_input_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>ContentFile can accept both bytes and strings and the retrieved content
+is of the same type.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.ContentFileTestCase.test_open_resets_file_to_start_and_returns_context_manager">
+<span class="sig-name descname"><span class="pre">test_open_resets_file_to_start_and_returns_context_manager</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#ContentFileTestCase.test_open_resets_file_to_start_and_returns_context_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.ContentFileTestCase.test_open_resets_file_to_start_and_returns_context_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.ContentFileTestCase.test_size_changing_after_writing">
+<span class="sig-name descname"><span class="pre">test_size_changing_after_writing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#ContentFileTestCase.test_size_changing_after_writing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.ContentFileTestCase.test_size_changing_after_writing" title="Permalink to this definition">¶</a></dt>
+<dd><p>ContentFile.size changes after a write().</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.tests_images.DimensionClosingBug">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.tests_images.</span></span><span class="sig-name descname"><span class="pre">DimensionClosingBug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#DimensionClosingBug"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.DimensionClosingBug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>get_image_dimensions() properly closes files (#8817)</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.DimensionClosingBug.test_closing_of_filenames">
+<span class="sig-name descname"><span class="pre">test_closing_of_filenames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#DimensionClosingBug.test_closing_of_filenames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.DimensionClosingBug.test_closing_of_filenames" title="Permalink to this definition">¶</a></dt>
+<dd><p>get_image_dimensions() called with a filename should closed the file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.DimensionClosingBug.test_not_closing_of_files">
+<span class="sig-name descname"><span class="pre">test_not_closing_of_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#DimensionClosingBug.test_not_closing_of_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.DimensionClosingBug.test_not_closing_of_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open files passed into get_image_dimensions() should stay opened.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.tests_images.FileMoveSafeTests">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.tests_images.</span></span><span class="sig-name descname"><span class="pre">FileMoveSafeTests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileMoveSafeTests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileMoveSafeTests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileMoveSafeTests.test_file_move_copystat_cifs">
+<span class="sig-name descname"><span class="pre">test_file_move_copystat_cifs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileMoveSafeTests.test_file_move_copystat_cifs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileMoveSafeTests.test_file_move_copystat_cifs" title="Permalink to this definition">¶</a></dt>
+<dd><p>file_move_safe() ignores a copystat() EPERM PermissionError. This
+happens when the destination filesystem is CIFS, for example.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileMoveSafeTests.test_file_move_overwrite">
+<span class="sig-name descname"><span class="pre">test_file_move_overwrite</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileMoveSafeTests.test_file_move_overwrite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileMoveSafeTests.test_file_move_overwrite" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.tests_images.</span></span><span class="sig-name descname"><span class="pre">FileTests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_context_manager">
+<span class="sig-name descname"><span class="pre">test_context_manager</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_context_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_context_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_exclusive_lock">
+<span class="sig-name descname"><span class="pre">test_exclusive_lock</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_exclusive_lock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_exclusive_lock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_file_iteration">
+<span class="sig-name descname"><span class="pre">test_file_iteration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_file_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_file_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>File objects should yield lines when iterated over.
+Refs #22107.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_file_iteration_mac_newlines">
+<span class="sig-name descname"><span class="pre">test_file_iteration_mac_newlines</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_file_iteration_mac_newlines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_file_iteration_mac_newlines" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>#8149 - File objects with</p>
+</div></blockquote>
+<dl class="simple">
+<dt>line endings should yield lines</dt><dd><p>when iterated over.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_file_iteration_mixed_newlines">
+<span class="sig-name descname"><span class="pre">test_file_iteration_mixed_newlines</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_file_iteration_mixed_newlines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_file_iteration_mixed_newlines" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_file_iteration_windows_newlines">
+<span class="sig-name descname"><span class="pre">test_file_iteration_windows_newlines</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_file_iteration_windows_newlines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_file_iteration_windows_newlines" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>#8149 - File objects with</p>
+</div></blockquote>
+<dl class="simple">
+<dt>line endings should yield lines</dt><dd><p>when iterated over.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_file_iteration_with_mac_newline_at_chunk_boundary">
+<span class="sig-name descname"><span class="pre">test_file_iteration_with_mac_newline_at_chunk_boundary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_file_iteration_with_mac_newline_at_chunk_boundary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_file_iteration_with_mac_newline_at_chunk_boundary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_file_iteration_with_text">
+<span class="sig-name descname"><span class="pre">test_file_iteration_with_text</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_file_iteration_with_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_file_iteration_with_text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_file_iteration_with_unix_newline_at_chunk_boundary">
+<span class="sig-name descname"><span class="pre">test_file_iteration_with_unix_newline_at_chunk_boundary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_file_iteration_with_unix_newline_at_chunk_boundary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_file_iteration_with_unix_newline_at_chunk_boundary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_file_iteration_with_windows_newline_at_chunk_boundary">
+<span class="sig-name descname"><span class="pre">test_file_iteration_with_windows_newline_at_chunk_boundary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_file_iteration_with_windows_newline_at_chunk_boundary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_file_iteration_with_windows_newline_at_chunk_boundary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_file_mode">
+<span class="sig-name descname"><span class="pre">test_file_mode</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_file_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_file_mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_io_wrapper">
+<span class="sig-name descname"><span class="pre">test_io_wrapper</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_io_wrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_io_wrapper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_namedtemporaryfile_closes">
+<span class="sig-name descname"><span class="pre">test_namedtemporaryfile_closes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_namedtemporaryfile_closes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_namedtemporaryfile_closes" title="Permalink to this definition">¶</a></dt>
+<dd><p>The symbol django.core.files.NamedTemporaryFile is assigned as
+a different class on different operating systems. In
+any case, the result should minimally mock some of the API of
+tempfile.NamedTemporaryFile from the Python standard library.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_open_reopens_closed_file_and_returns_context_manager">
+<span class="sig-name descname"><span class="pre">test_open_reopens_closed_file_and_returns_context_manager</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_open_reopens_closed_file_and_returns_context_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_open_reopens_closed_file_and_returns_context_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_open_resets_opened_file_to_start_and_returns_context_manager">
+<span class="sig-name descname"><span class="pre">test_open_resets_opened_file_to_start_and_returns_context_manager</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_open_resets_opened_file_to_start_and_returns_context_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_open_resets_opened_file_to_start_and_returns_context_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_readable">
+<span class="sig-name descname"><span class="pre">test_readable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_readable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_readable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_seekable">
+<span class="sig-name descname"><span class="pre">test_seekable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_seekable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_seekable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_shared_lock">
+<span class="sig-name descname"><span class="pre">test_shared_lock</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_shared_lock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_shared_lock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_unicode_file_name">
+<span class="sig-name descname"><span class="pre">test_unicode_file_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_unicode_file_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_unicode_file_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_unicode_uploadedfile_name">
+<span class="sig-name descname"><span class="pre">test_unicode_uploadedfile_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_unicode_uploadedfile_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_unicode_uploadedfile_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.FileTests.test_writable">
+<span class="sig-name descname"><span class="pre">test_writable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#FileTests.test_writable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.FileTests.test_writable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.tests_images.GetImageDimensionsTests">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.tests_images.</span></span><span class="sig-name descname"><span class="pre">GetImageDimensionsTests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#GetImageDimensionsTests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.GetImageDimensionsTests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.GetImageDimensionsTests.test_invalid_image">
+<span class="sig-name descname"><span class="pre">test_invalid_image</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#GetImageDimensionsTests.test_invalid_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.GetImageDimensionsTests.test_invalid_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>get_image_dimensions() should return (None, None) for the dimensions of
+invalid images (#24441).</p>
+<p>brokenimg.png is not a valid image and it has been generated by:
+$ echo “123” &gt; brokenimg.png</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.GetImageDimensionsTests.test_valid_image">
+<span class="sig-name descname"><span class="pre">test_valid_image</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#GetImageDimensionsTests.test_valid_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.GetImageDimensionsTests.test_valid_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>get_image_dimensions() should catch struct.error while feeding the PIL
+Image parser (#24544).</p>
+<p>Emulates the Parser feed error. Since the error is raised on every feed
+attempt, the resulting image size should be invalid: (None, None).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.tests_images.InMemoryUploadedFileTests">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.tests_images.</span></span><span class="sig-name descname"><span class="pre">InMemoryUploadedFileTests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#InMemoryUploadedFileTests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.InMemoryUploadedFileTests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.InMemoryUploadedFileTests.test_open_resets_file_to_start_and_returns_context_manager">
+<span class="sig-name descname"><span class="pre">test_open_resets_file_to_start_and_returns_context_manager</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#InMemoryUploadedFileTests.test_open_resets_file_to_start_and_returns_context_manager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.InMemoryUploadedFileTests.test_open_resets_file_to_start_and_returns_context_manager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.tests_images.InconsistentGetImageDimensionsBug">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.tests_images.</span></span><span class="sig-name descname"><span class="pre">InconsistentGetImageDimensionsBug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#InconsistentGetImageDimensionsBug"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.InconsistentGetImageDimensionsBug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>get_image_dimensions() works properly after various calls
+using a file handler (#11158)</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.InconsistentGetImageDimensionsBug.test_bug_19457">
+<span class="sig-name descname"><span class="pre">test_bug_19457</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#InconsistentGetImageDimensionsBug.test_bug_19457"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.InconsistentGetImageDimensionsBug.test_bug_19457" title="Permalink to this definition">¶</a></dt>
+<dd><p>Regression test for #19457
+get_image_dimensions() fails on some PNGs, while Image.size is working
+good on them.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.InconsistentGetImageDimensionsBug.test_multiple_calls">
+<span class="sig-name descname"><span class="pre">test_multiple_calls</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#InconsistentGetImageDimensionsBug.test_multiple_calls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.InconsistentGetImageDimensionsBug.test_multiple_calls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Multiple calls of get_image_dimensions() should return the same size.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.tests_images.NoNameFileTestCase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.tests_images.</span></span><span class="sig-name descname"><span class="pre">NoNameFileTestCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#NoNameFileTestCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.NoNameFileTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<p>Other examples of unnamed files may be tempfile.SpooledTemporaryFile or
+urllib.urlopen()</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.NoNameFileTestCase.test_noname_file_default_name">
+<span class="sig-name descname"><span class="pre">test_noname_file_default_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#NoNameFileTestCase.test_noname_file_default_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.NoNameFileTestCase.test_noname_file_default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.NoNameFileTestCase.test_noname_file_get_size">
+<span class="sig-name descname"><span class="pre">test_noname_file_get_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#NoNameFileTestCase.test_noname_file_get_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.NoNameFileTestCase.test_noname_file_get_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.tests_images.SpooledTempTests">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.tests_images.</span></span><span class="sig-name descname"><span class="pre">SpooledTempTests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#SpooledTempTests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.SpooledTempTests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.SpooledTempTests.test_in_memory_spooled_temp">
+<span class="sig-name descname"><span class="pre">test_in_memory_spooled_temp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#SpooledTempTests.test_in_memory_spooled_temp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.SpooledTempTests.test_in_memory_spooled_temp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.SpooledTempTests.test_written_spooled_temp">
+<span class="sig-name descname"><span class="pre">test_written_spooled_temp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#SpooledTempTests.test_written_spooled_temp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.SpooledTempTests.test_written_spooled_temp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tests.tests_images.TemporaryUploadedFileTests">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tests.tests_images.</span></span><span class="sig-name descname"><span class="pre">TemporaryUploadedFileTests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#TemporaryUploadedFileTests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.TemporaryUploadedFileTests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.TemporaryUploadedFileTests.test_extension_kept">
+<span class="sig-name descname"><span class="pre">test_extension_kept</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#TemporaryUploadedFileTests.test_extension_kept"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.TemporaryUploadedFileTests.test_extension_kept" title="Permalink to this definition">¶</a></dt>
+<dd><p>The temporary file name has the same suffix as the original file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tests.tests_images.TemporaryUploadedFileTests.test_file_upload_temp_dir_pathlib">
+<span class="sig-name descname"><span class="pre">test_file_upload_temp_dir_pathlib</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tests/tests_images.html#TemporaryUploadedFileTests.test_file_upload_temp_dir_pathlib"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tests.tests_images.TemporaryUploadedFileTests.test_file_upload_temp_dir_pathlib" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tests">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tests" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="Wicked-adventure.html">Wicked-Adventure</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="Wicked-adventure.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Wednesday.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/tests.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

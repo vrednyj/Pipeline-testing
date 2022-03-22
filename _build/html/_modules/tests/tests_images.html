@@ -1,0 +1,564 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tests.tests_images &#8212; Wicked-Adventure 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for tests.tests_images</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">errno</span>
+<span class="kn">import</span> <span class="nn">gzip</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span><span class="p">,</span> <span class="n">StringIO</span><span class="p">,</span> <span class="n">TextIOWrapper</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">mock</span>
+
+<span class="kn">from</span> <span class="nn">django.core.files</span> <span class="kn">import</span> <span class="n">File</span><span class="p">,</span> <span class="n">locks</span>
+<span class="kn">from</span> <span class="nn">django.core.files.base</span> <span class="kn">import</span> <span class="n">ContentFile</span>
+<span class="kn">from</span> <span class="nn">django.core.files.move</span> <span class="kn">import</span> <span class="n">file_move_safe</span>
+<span class="kn">from</span> <span class="nn">django.core.files.temp</span> <span class="kn">import</span> <span class="n">NamedTemporaryFile</span>
+<span class="kn">from</span> <span class="nn">django.core.files.uploadedfile</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">InMemoryUploadedFile</span><span class="p">,</span>
+    <span class="n">SimpleUploadedFile</span><span class="p">,</span>
+    <span class="n">TemporaryUploadedFile</span><span class="p">,</span>
+    <span class="n">UploadedFile</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">django.test</span> <span class="kn">import</span> <span class="n">override_settings</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">features</span>
+
+    <span class="n">HAS_WEBP</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;webp&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">Image</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">HAS_WEBP</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">django.core.files</span> <span class="kn">import</span> <span class="n">images</span>
+
+
+<div class="viewcode-block" id="FileTests"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests">[docs]</a><span class="k">class</span> <span class="nc">FileTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="FileTests.test_unicode_uploadedfile_name"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_unicode_uploadedfile_name">[docs]</a>    <span class="k">def</span> <span class="nf">test_unicode_uploadedfile_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">uf</span> <span class="o">=</span> <span class="n">UploadedFile</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;¿Cómo?&quot;</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">uf</span><span class="p">)),</span> <span class="nb">str</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FileTests.test_unicode_file_name"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_unicode_file_name">[docs]</a>    <span class="k">def</span> <span class="nf">test_unicode_file_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;djángö&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">f</span><span class="p">)),</span> <span class="nb">str</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FileTests.test_context_manager"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_context_manager">[docs]</a>    <span class="k">def</span> <span class="nf">test_context_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">orig_file</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">()</span>
+        <span class="n">base_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">orig_file</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">base_file</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">base_file</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">orig_file</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FileTests.test_open_resets_opened_file_to_start_and_returns_context_manager"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_open_resets_opened_file_to_start_and_returns_context_manager">[docs]</a>    <span class="k">def</span> <span class="nf">test_open_resets_opened_file_to_start_and_returns_context_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;content&quot;</span><span class="p">))</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">file</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="sa">b</span><span class="s2">&quot;content&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FileTests.test_open_reopens_closed_file_and_returns_context_manager"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_open_reopens_closed_file_and_returns_context_manager">[docs]</a>    <span class="k">def</span> <span class="nf">test_open_reopens_closed_file_and_returns_context_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">temporary_file</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">temporary_file</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">with</span> <span class="n">file</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># remove temporary file</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FileTests.test_namedtemporaryfile_closes"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_namedtemporaryfile_closes">[docs]</a>    <span class="k">def</span> <span class="nf">test_namedtemporaryfile_closes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The symbol django.core.files.NamedTemporaryFile is assigned as</span>
+<span class="sd">        a different class on different operating systems. In</span>
+<span class="sd">        any case, the result should minimally mock some of the API of</span>
+<span class="sd">        tempfile.NamedTemporaryFile from the Python standard library.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tempfile</span> <span class="o">=</span> <span class="n">NamedTemporaryFile</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">tempfile</span><span class="p">,</span> <span class="s2">&quot;closed&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span>
+
+        <span class="n">tempfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FileTests.test_file_mode"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_file_mode">[docs]</a>    <span class="k">def</span> <span class="nf">test_file_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Should not set mode to None if it is not present.</span>
+        <span class="c1"># See #14681, stdlib gzip module crashes if mode is set to None</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">SimpleUploadedFile</span><span class="p">(</span><span class="s2">&quot;mode_test.txt&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;content&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">))</span>
+        <span class="n">gzip</span><span class="o">.</span><span class="n">GzipFile</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">file</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FileTests.test_file_iteration"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_file_iteration">[docs]</a>    <span class="k">def</span> <span class="nf">test_file_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        File objects should yield lines when iterated over.</span>
+<span class="sd">        Refs #22107.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;one</span><span class="se">\n</span><span class="s2">two</span><span class="se">\n</span><span class="s2">three&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">file</span><span class="p">),</span> <span class="p">[</span><span class="sa">b</span><span class="s2">&quot;one</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;two</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;three&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="FileTests.test_file_iteration_windows_newlines"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_file_iteration_windows_newlines">[docs]</a>    <span class="k">def</span> <span class="nf">test_file_iteration_windows_newlines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        #8149 - File objects with \r\n line endings should yield lines</span>
+<span class="sd">        when iterated over.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;one</span><span class="se">\r\n</span><span class="s2">two</span><span class="se">\r\n</span><span class="s2">three&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="p">[</span><span class="sa">b</span><span class="s2">&quot;one</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;two</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;three&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="FileTests.test_file_iteration_mac_newlines"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_file_iteration_mac_newlines">[docs]</a>    <span class="k">def</span> <span class="nf">test_file_iteration_mac_newlines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        #8149 - File objects with \r line endings should yield lines</span>
+<span class="sd">        when iterated over.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;one</span><span class="se">\r</span><span class="s2">two</span><span class="se">\r</span><span class="s2">three&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="p">[</span><span class="sa">b</span><span class="s2">&quot;one</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;two</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;three&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="FileTests.test_file_iteration_mixed_newlines"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_file_iteration_mixed_newlines">[docs]</a>    <span class="k">def</span> <span class="nf">test_file_iteration_mixed_newlines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;one</span><span class="se">\r</span><span class="s2">two</span><span class="se">\n</span><span class="s2">three</span><span class="se">\r\n</span><span class="s2">four&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="p">[</span><span class="sa">b</span><span class="s2">&quot;one</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;two</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;three</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;four&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="FileTests.test_file_iteration_with_unix_newline_at_chunk_boundary"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_file_iteration_with_unix_newline_at_chunk_boundary">[docs]</a>    <span class="k">def</span> <span class="nf">test_file_iteration_with_unix_newline_at_chunk_boundary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;one</span><span class="se">\n</span><span class="s2">two</span><span class="se">\n</span><span class="s2">three&quot;</span><span class="p">))</span>
+        <span class="c1"># Set chunk size to create a boundary after \n:</span>
+        <span class="c1"># b&#39;one\n...</span>
+        <span class="c1">#        ^</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">DEFAULT_CHUNK_SIZE</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="p">[</span><span class="sa">b</span><span class="s2">&quot;one</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;two</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;three&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="FileTests.test_file_iteration_with_windows_newline_at_chunk_boundary"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_file_iteration_with_windows_newline_at_chunk_boundary">[docs]</a>    <span class="k">def</span> <span class="nf">test_file_iteration_with_windows_newline_at_chunk_boundary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;one</span><span class="se">\r\n</span><span class="s2">two</span><span class="se">\r\n</span><span class="s2">three&quot;</span><span class="p">))</span>
+        <span class="c1"># Set chunk size to create a boundary between \r and \n:</span>
+        <span class="c1"># b&#39;one\r\n...</span>
+        <span class="c1">#        ^</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">DEFAULT_CHUNK_SIZE</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="p">[</span><span class="sa">b</span><span class="s2">&quot;one</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;two</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;three&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="FileTests.test_file_iteration_with_mac_newline_at_chunk_boundary"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_file_iteration_with_mac_newline_at_chunk_boundary">[docs]</a>    <span class="k">def</span> <span class="nf">test_file_iteration_with_mac_newline_at_chunk_boundary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;one</span><span class="se">\r</span><span class="s2">two</span><span class="se">\r</span><span class="s2">three&quot;</span><span class="p">))</span>
+        <span class="c1"># Set chunk size to create a boundary after \r:</span>
+        <span class="c1"># b&#39;one\r...</span>
+        <span class="c1">#        ^</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">DEFAULT_CHUNK_SIZE</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="p">[</span><span class="sa">b</span><span class="s2">&quot;one</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;two</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;three&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="FileTests.test_file_iteration_with_text"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_file_iteration_with_text">[docs]</a>    <span class="k">def</span> <span class="nf">test_file_iteration_with_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="s2">&quot;one</span><span class="se">\n</span><span class="s2">two</span><span class="se">\n</span><span class="s2">three&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;one</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;two</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;three&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="FileTests.test_readable"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_readable">[docs]</a>    <span class="k">def</span> <span class="nf">test_readable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp</span><span class="p">,</span> <span class="n">File</span><span class="p">(</span>
+            <span class="n">temp</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;something.txt&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">test_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">test_file</span><span class="o">.</span><span class="n">readable</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">test_file</span><span class="o">.</span><span class="n">readable</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="FileTests.test_writable"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_writable">[docs]</a>    <span class="k">def</span> <span class="nf">test_writable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp</span><span class="p">,</span> <span class="n">File</span><span class="p">(</span>
+            <span class="n">temp</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;something.txt&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">test_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">test_file</span><span class="o">.</span><span class="n">writable</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">test_file</span><span class="o">.</span><span class="n">writable</span><span class="p">())</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">temp</span><span class="p">,</span> <span class="n">File</span><span class="p">(</span>
+            <span class="n">temp</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;something.txt&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">test_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">test_file</span><span class="o">.</span><span class="n">writable</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="FileTests.test_seekable"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_seekable">[docs]</a>    <span class="k">def</span> <span class="nf">test_seekable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp</span><span class="p">,</span> <span class="n">File</span><span class="p">(</span>
+            <span class="n">temp</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;something.txt&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">test_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">test_file</span><span class="o">.</span><span class="n">seekable</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">test_file</span><span class="o">.</span><span class="n">seekable</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="FileTests.test_io_wrapper"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_io_wrapper">[docs]</a>    <span class="k">def</span> <span class="nf">test_io_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;vive l&#39;été</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp</span><span class="p">,</span> <span class="n">File</span><span class="p">(</span>
+            <span class="n">temp</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;something.txt&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">test_file</span><span class="p">:</span>
+            <span class="n">test_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+            <span class="n">test_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">wrapper</span> <span class="o">=</span> <span class="n">TextIOWrapper</span><span class="p">(</span><span class="n">test_file</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">wrapper</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">content</span><span class="p">)</span>
+            <span class="n">wrapper</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+            <span class="n">wrapper</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">wrapper</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">content</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">test_file</span> <span class="o">=</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+            <span class="n">test_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">test_file</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="p">(</span><span class="n">content</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="FileTests.test_exclusive_lock"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_exclusive_lock">[docs]</a>    <span class="k">def</span> <span class="nf">test_exclusive_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;..//media//images//Key_1200.jpg&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f1</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">locks</span><span class="o">.</span><span class="n">lock</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span> <span class="n">locks</span><span class="o">.</span><span class="n">LOCK_EX</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">locks</span><span class="o">.</span><span class="n">lock</span><span class="p">(</span><span class="n">f2</span><span class="p">,</span> <span class="n">locks</span><span class="o">.</span><span class="n">LOCK_EX</span> <span class="o">|</span> <span class="n">locks</span><span class="o">.</span><span class="n">LOCK_NB</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">locks</span><span class="o">.</span><span class="n">lock</span><span class="p">(</span><span class="n">f2</span><span class="p">,</span> <span class="n">locks</span><span class="o">.</span><span class="n">LOCK_SH</span> <span class="o">|</span> <span class="n">locks</span><span class="o">.</span><span class="n">LOCK_NB</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">locks</span><span class="o">.</span><span class="n">unlock</span><span class="p">(</span><span class="n">f1</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FileTests.test_shared_lock"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileTests.test_shared_lock">[docs]</a>    <span class="k">def</span> <span class="nf">test_shared_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;..//media//images//Key_1200.jpg&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f1</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">locks</span><span class="o">.</span><span class="n">lock</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span> <span class="n">locks</span><span class="o">.</span><span class="n">LOCK_SH</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">locks</span><span class="o">.</span><span class="n">lock</span><span class="p">(</span><span class="n">f2</span><span class="p">,</span> <span class="n">locks</span><span class="o">.</span><span class="n">LOCK_SH</span> <span class="o">|</span> <span class="n">locks</span><span class="o">.</span><span class="n">LOCK_NB</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">locks</span><span class="o">.</span><span class="n">unlock</span><span class="p">(</span><span class="n">f1</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">locks</span><span class="o">.</span><span class="n">unlock</span><span class="p">(</span><span class="n">f2</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="NoNameFileTestCase"><a class="viewcode-back" href="../../tests.html#tests.tests_images.NoNameFileTestCase">[docs]</a><span class="k">class</span> <span class="nc">NoNameFileTestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Other examples of unnamed files may be tempfile.SpooledTemporaryFile or</span>
+<span class="sd">    urllib.urlopen()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="NoNameFileTestCase.test_noname_file_default_name"><a class="viewcode-back" href="../../tests.html#tests.tests_images.NoNameFileTestCase.test_noname_file_default_name">[docs]</a>    <span class="k">def</span> <span class="nf">test_noname_file_default_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">File</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;A file with no name&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NoNameFileTestCase.test_noname_file_get_size"><a class="viewcode-back" href="../../tests.html#tests.tests_images.NoNameFileTestCase.test_noname_file_get_size">[docs]</a>    <span class="k">def</span> <span class="nf">test_noname_file_get_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">File</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;A file with no name&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">19</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ContentFileTestCase"><a class="viewcode-back" href="../../tests.html#tests.tests_images.ContentFileTestCase">[docs]</a><span class="k">class</span> <span class="nc">ContentFileTestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="ContentFileTestCase.test_content_file_default_name"><a class="viewcode-back" href="../../tests.html#tests.tests_images.ContentFileTestCase.test_content_file_default_name">[docs]</a>    <span class="k">def</span> <span class="nf">test_content_file_default_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">ContentFile</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;content&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ContentFileTestCase.test_content_file_custom_name"><a class="viewcode-back" href="../../tests.html#tests.tests_images.ContentFileTestCase.test_content_file_custom_name">[docs]</a>    <span class="k">def</span> <span class="nf">test_content_file_custom_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The constructor of ContentFile accepts &#39;name&#39; (#16590).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;I can have a name too!&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">ContentFile</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;content&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ContentFileTestCase.test_content_file_input_type"><a class="viewcode-back" href="../../tests.html#tests.tests_images.ContentFileTestCase.test_content_file_input_type">[docs]</a>    <span class="k">def</span> <span class="nf">test_content_file_input_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ContentFile can accept both bytes and strings and the retrieved content</span>
+<span class="sd">        is of the same type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">ContentFile</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;content&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="nb">bytes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">ContentFile</span><span class="p">(</span><span class="s2">&quot;español&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="nb">str</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ContentFileTestCase.test_open_resets_file_to_start_and_returns_context_manager"><a class="viewcode-back" href="../../tests.html#tests.tests_images.ContentFileTestCase.test_open_resets_file_to_start_and_returns_context_manager">[docs]</a>    <span class="k">def</span> <span class="nf">test_open_resets_file_to_start_and_returns_context_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">ContentFile</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;content&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">file</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="sa">b</span><span class="s2">&quot;content&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">file</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="sa">b</span><span class="s2">&quot;content&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ContentFileTestCase.test_size_changing_after_writing"><a class="viewcode-back" href="../../tests.html#tests.tests_images.ContentFileTestCase.test_size_changing_after_writing">[docs]</a>    <span class="k">def</span> <span class="nf">test_size_changing_after_writing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;ContentFile.size changes after a write().&quot;&quot;&quot;</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">ContentFile</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Test &quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">f</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s2">&quot;Test string&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="InMemoryUploadedFileTests"><a class="viewcode-back" href="../../tests.html#tests.tests_images.InMemoryUploadedFileTests">[docs]</a><span class="k">class</span> <span class="nc">InMemoryUploadedFileTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="InMemoryUploadedFileTests.test_open_resets_file_to_start_and_returns_context_manager"><a class="viewcode-back" href="../../tests.html#tests.tests_images.InMemoryUploadedFileTests.test_open_resets_file_to_start_and_returns_context_manager">[docs]</a>    <span class="k">def</span> <span class="nf">test_open_resets_file_to_start_and_returns_context_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">uf</span> <span class="o">=</span> <span class="n">InMemoryUploadedFile</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">),</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;text/plain&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">)</span>
+        <span class="n">uf</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">uf</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="TemporaryUploadedFileTests"><a class="viewcode-back" href="../../tests.html#tests.tests_images.TemporaryUploadedFileTests">[docs]</a><span class="k">class</span> <span class="nc">TemporaryUploadedFileTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="TemporaryUploadedFileTests.test_extension_kept"><a class="viewcode-back" href="../../tests.html#tests.tests_images.TemporaryUploadedFileTests.test_extension_kept">[docs]</a>    <span class="k">def</span> <span class="nf">test_extension_kept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The temporary file name has the same suffix as the original file.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">TemporaryUploadedFile</span><span class="p">(</span><span class="s2">&quot;test.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;text/plain&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">temp_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">temp_file</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.upload.txt&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="TemporaryUploadedFileTests.test_file_upload_temp_dir_pathlib"><a class="viewcode-back" href="../../tests.html#tests.tests_images.TemporaryUploadedFileTests.test_file_upload_temp_dir_pathlib">[docs]</a>    <span class="k">def</span> <span class="nf">test_file_upload_temp_dir_pathlib</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">override_settings</span><span class="p">(</span><span class="n">FILE_UPLOAD_TEMP_DIR</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)):</span>
+                <span class="k">with</span> <span class="n">TemporaryUploadedFile</span><span class="p">(</span>
+                    <span class="s2">&quot;test.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;text/plain&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">temp_file</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">temp_file</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="DimensionClosingBug"><a class="viewcode-back" href="../../tests.html#tests.tests_images.DimensionClosingBug">[docs]</a><span class="k">class</span> <span class="nc">DimensionClosingBug</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    get_image_dimensions() properly closes files (#8817)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DimensionClosingBug.test_not_closing_of_files"><a class="viewcode-back" href="../../tests.html#tests.tests_images.DimensionClosingBug.test_not_closing_of_files">[docs]</a>    <span class="nd">@unittest</span><span class="o">.</span><span class="n">skipUnless</span><span class="p">(</span><span class="n">Image</span><span class="p">,</span> <span class="s2">&quot;Pillow not installed&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_not_closing_of_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Open files passed into get_image_dimensions() should stay opened.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">empty_io</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">images</span><span class="o">.</span><span class="n">get_image_dimensions</span><span class="p">(</span><span class="n">empty_io</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="ow">not</span> <span class="n">empty_io</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DimensionClosingBug.test_closing_of_filenames"><a class="viewcode-back" href="../../tests.html#tests.tests_images.DimensionClosingBug.test_closing_of_filenames">[docs]</a>    <span class="nd">@unittest</span><span class="o">.</span><span class="n">skipUnless</span><span class="p">(</span><span class="n">Image</span><span class="p">,</span> <span class="s2">&quot;Pillow not installed&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_closing_of_filenames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get_image_dimensions() called with a filename should closed the file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># We need to inject a modified open() builtin into the images module</span>
+        <span class="c1"># that checks if the file was closed properly if the function is</span>
+        <span class="c1"># called with a filename instead of a file object.</span>
+        <span class="c1"># get_image_dimensions will call our catching_open instead of the</span>
+        <span class="c1"># regular builtin one.</span>
+
+        <span class="k">class</span> <span class="nc">FileWrapper</span><span class="p">:</span>
+            <span class="n">_closed</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">f</span>
+
+            <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">catching_open</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">FileWrapper</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">))</span>
+
+        <span class="n">images</span><span class="o">.</span><span class="n">open</span> <span class="o">=</span> <span class="n">catching_open</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">images</span><span class="o">.</span><span class="n">get_image_dimensions</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..//media//images//Key_1200.jpg&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">images</span><span class="o">.</span><span class="n">open</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">FileWrapper</span><span class="o">.</span><span class="n">_closed</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="InconsistentGetImageDimensionsBug"><a class="viewcode-back" href="../../tests.html#tests.tests_images.InconsistentGetImageDimensionsBug">[docs]</a><span class="k">class</span> <span class="nc">InconsistentGetImageDimensionsBug</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    get_image_dimensions() works properly after various calls</span>
+<span class="sd">    using a file handler (#11158)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="InconsistentGetImageDimensionsBug.test_multiple_calls"><a class="viewcode-back" href="../../tests.html#tests.tests_images.InconsistentGetImageDimensionsBug.test_multiple_calls">[docs]</a>    <span class="nd">@unittest</span><span class="o">.</span><span class="n">skipUnless</span><span class="p">(</span><span class="n">Image</span><span class="p">,</span> <span class="s2">&quot;Pillow not installed&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_multiple_calls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Multiple calls of get_image_dimensions() should return the same size.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..//media//images//Key_1200.jpg&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">ImageFile</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+            <span class="n">image_pil</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+            <span class="n">size_1</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">get_image_dimensions</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+            <span class="n">size_2</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">get_image_dimensions</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">image_pil</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">size_1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">size_1</span><span class="p">,</span> <span class="n">size_2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InconsistentGetImageDimensionsBug.test_bug_19457"><a class="viewcode-back" href="../../tests.html#tests.tests_images.InconsistentGetImageDimensionsBug.test_bug_19457">[docs]</a>    <span class="nd">@unittest</span><span class="o">.</span><span class="n">skipUnless</span><span class="p">(</span><span class="n">Image</span><span class="p">,</span> <span class="s2">&quot;Pillow not installed&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_bug_19457</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Regression test for #19457</span>
+<span class="sd">        get_image_dimensions() fails on some PNGs, while Image.size is working</span>
+<span class="sd">        good on them.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..//media//images//Key_1200.jpg&quot;</span><span class="p">)</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">get_image_dimensions</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="GetImageDimensionsTests"><a class="viewcode-back" href="../../tests.html#tests.tests_images.GetImageDimensionsTests">[docs]</a><span class="nd">@unittest</span><span class="o">.</span><span class="n">skipUnless</span><span class="p">(</span><span class="n">Image</span><span class="p">,</span> <span class="s2">&quot;Pillow not installed&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">GetImageDimensionsTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="GetImageDimensionsTests.test_invalid_image"><a class="viewcode-back" href="../../tests.html#tests.tests_images.GetImageDimensionsTests.test_invalid_image">[docs]</a>    <span class="k">def</span> <span class="nf">test_invalid_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get_image_dimensions() should return (None, None) for the dimensions of</span>
+<span class="sd">        invalid images (#24441).</span>
+
+<span class="sd">        brokenimg.png is not a valid image and it has been generated by:</span>
+<span class="sd">        $ echo &quot;123&quot; &gt; brokenimg.png</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..//media//images//Key_1200.jpg&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">get_image_dimensions</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+            <span class="c1">#self.assertEqual(size, (None, None))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="mi">1200</span><span class="p">,</span> <span class="mi">675</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="GetImageDimensionsTests.test_valid_image"><a class="viewcode-back" href="../../tests.html#tests.tests_images.GetImageDimensionsTests.test_valid_image">[docs]</a>    <span class="k">def</span> <span class="nf">test_valid_image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get_image_dimensions() should catch struct.error while feeding the PIL</span>
+<span class="sd">        Image parser (#24544).</span>
+
+<span class="sd">        Emulates the Parser feed error. Since the error is raised on every feed</span>
+<span class="sd">        attempt, the resulting image size should be invalid: (None, None).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+            <span class="n">img_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span><span class="sa">r</span><span class="s1">&#39;../media/images/&#39;</span><span class="p">,</span> <span class="s2">&quot;Key_1200.jpg&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s2">&quot;PIL.ImageFile.Parser.feed&quot;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">error</span><span class="p">):</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                    <span class="n">size</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">get_image_dimensions</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span></div></div>
+
+    <span class="c1">#def test_missing_file(self):</span>
+    <span class="c1">#    size = images.get_image_dimensions(&quot;missing.png&quot;)</span>
+    <span class="c1">#    self.assertEqual(size, (None, None))</span>
+
+    <span class="c1">#@unittest.skipUnless(HAS_WEBP, &quot;WEBP not installed&quot;)</span>
+    <span class="c1">#def test_webp(self):</span>
+    <span class="c1">#    img_path = os.path.join(os.path.dirname(__file__), &quot;test.webp&quot;)</span>
+    <span class="c1">#    with open(img_path, &quot;rb&quot;) as fh:</span>
+    <span class="c1">#        size = images.get_image_dimensions(fh)</span>
+    <span class="c1">#    self.assertEqual(size, (540, 405))</span>
+
+
+<div class="viewcode-block" id="FileMoveSafeTests"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileMoveSafeTests">[docs]</a><span class="k">class</span> <span class="nc">FileMoveSafeTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="FileMoveSafeTests.test_file_move_overwrite"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileMoveSafeTests.test_file_move_overwrite">[docs]</a>    <span class="k">def</span> <span class="nf">test_file_move_overwrite</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">handle_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_a</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">()</span>
+        <span class="n">handle_b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_b</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">()</span>
+
+        <span class="c1"># file_move_safe() raises OSError if the destination file exists and</span>
+        <span class="c1"># allow_overwrite is False.</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">FileExistsError</span><span class="p">):</span>
+            <span class="n">file_move_safe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_b</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># should allow it and continue on if allow_overwrite is True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span>
+            <span class="n">file_move_safe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_b</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">handle_a</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">handle_b</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FileMoveSafeTests.test_file_move_copystat_cifs"><a class="viewcode-back" href="../../tests.html#tests.tests_images.FileMoveSafeTests.test_file_move_copystat_cifs">[docs]</a>    <span class="k">def</span> <span class="nf">test_file_move_copystat_cifs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        file_move_safe() ignores a copystat() EPERM PermissionError. This</span>
+<span class="sd">        happens when the destination filesystem is CIFS, for example.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">copystat_EACCES_error</span> <span class="o">=</span> <span class="ne">PermissionError</span><span class="p">(</span><span class="n">errno</span><span class="o">.</span><span class="n">EACCES</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">)</span>
+        <span class="n">copystat_EPERM_error</span> <span class="o">=</span> <span class="ne">PermissionError</span><span class="p">(</span><span class="n">errno</span><span class="o">.</span><span class="n">EPERM</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">)</span>
+        <span class="n">handle_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_a</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">()</span>
+        <span class="n">handle_b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_b</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># This exception is required to reach the copystat() call in</span>
+            <span class="c1"># file_safe_move().</span>
+            <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s2">&quot;django.core.files.move.os.rename&quot;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="ne">OSError</span><span class="p">()):</span>
+                <span class="c1"># An error besides EPERM isn&#39;t ignored.</span>
+                <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span>
+                    <span class="s2">&quot;django.core.files.move.copystat&quot;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="n">copystat_EACCES_error</span>
+                <span class="p">):</span>
+                    <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">PermissionError</span><span class="p">):</span>
+                        <span class="n">file_move_safe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_b</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="c1"># EPERM is ignored.</span>
+                <span class="k">with</span> <span class="n">mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span>
+                    <span class="s2">&quot;django.core.files.move.copystat&quot;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="n">copystat_EPERM_error</span>
+                <span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span>
+                        <span class="n">file_move_safe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_b</span><span class="p">,</span> <span class="n">allow_overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">handle_a</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">handle_b</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SpooledTempTests"><a class="viewcode-back" href="../../tests.html#tests.tests_images.SpooledTempTests">[docs]</a><span class="k">class</span> <span class="nc">SpooledTempTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+<div class="viewcode-block" id="SpooledTempTests.test_in_memory_spooled_temp"><a class="viewcode-back" href="../../tests.html#tests.tests_images.SpooledTempTests.test_in_memory_spooled_temp">[docs]</a>    <span class="k">def</span> <span class="nf">test_in_memory_spooled_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">SpooledTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp</span><span class="p">:</span>
+            <span class="n">temp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;foo bar baz quux</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">django_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;something.txt&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">django_file</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">17</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpooledTempTests.test_written_spooled_temp"><a class="viewcode-back" href="../../tests.html#tests.tests_images.SpooledTempTests.test_written_spooled_temp">[docs]</a>    <span class="k">def</span> <span class="nf">test_written_spooled_temp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">SpooledTemporaryFile</span><span class="p">(</span><span class="n">max_size</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span> <span class="k">as</span> <span class="n">temp</span><span class="p">:</span>
+            <span class="n">temp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;foo bar baz quux</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">django_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;something.txt&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">django_file</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">17</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../Wicked-adventure.html">Wicked-Adventure</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../Wicked-adventure.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Wednesday.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
