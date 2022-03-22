@@ -5,8 +5,8 @@ on:
   push:
     branches: [ main ]      
   # Code pulled from Dev branch will be a trigger
-  pull_request:
-    branches: [ Dev ]
+  # pull_request:
+  #  branches: [ Dev ]
 
 # build-job, package-job.
 jobs:
