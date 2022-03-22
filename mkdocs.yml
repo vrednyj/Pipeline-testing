@@ -4,13 +4,13 @@ repo_name: GitHub
 docs_dir: doc/
 nav:
     - Home: index.md
-    - AutoDoc: autodoc.md
+    - AutoDocs: autodoc.md
     - Back-end-testing: back-end-testing.md
     - Code: code.md
     - DAST: dast.md
     - Deployment: deployment.md
     - Installation: instalation.md
-    - Front-end-testing: front-and-testing.md
+    - Front-end-testing: front-end-testing.md
     - Installation: instalation.md
     - Monitoring: monitoring.md
     - SAST: sast.md
