@@ -1,4 +1,8 @@
 site_name: Wicked Adventures
 site_url: https://vrednyj.github.io/Pipeline-testing/
 repo_name: GitHub
-docs_dir: doc/_build/html
+docs_dir: doc/
+nav:
+    - Home: index.md
+    - About: about.md
+theme: readthedocs
