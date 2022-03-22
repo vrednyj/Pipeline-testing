@@ -11,7 +11,7 @@ nav:
     - Deployment: deployment.md
     - Installation: instalation.md
     - Front-end-testing: front-end-testing.md
-    - Installation: instalation.md
+    - Installation: installation.md
     - Monitoring: monitoring.md
     - SAST: sast.md
 theme: readthedocs
